@@ -7,7 +7,7 @@ module.exports = function axiosTest(app) {
     app = http.createServer(app);
   }
 
-  const server = (app.address && app.address()) ? app : app.listen(0);
+  const server = app.address && app.address() ? app : app.listen(0);
   const port = server.address().port;
   const host = `http://127.0.0.1:${port}/`;
 
@@ -18,22 +18,16 @@ module.exports = function axiosTest(app) {
 
   const instance = axios.create();
 
-  instance.interceptors.request.use(
-    (config) => {
-      const { url } = config;
+  instance.interceptors.request.use(config => {
+    const { url } = config;
 
-      return Object.assign({}, config, { url: resolve(host, url) });
-    },
-    handleError
-  );
+    return Object.assign({}, config, { url: resolve(host, url) });
+  }, handleError);
 
-  instance.interceptors.response.use(
-    (response) => {
-      server.close();
-      return Promise.resolve(response);
-    },
-    handleError
-  );
+  instance.interceptors.response.use(response => {
+    server.close();
+    return Promise.resolve(response);
+  }, handleError);
 
   return instance;
-}
+};
