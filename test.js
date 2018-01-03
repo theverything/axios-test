@@ -37,4 +37,14 @@ describe('axiosTest', () => {
         expect(res.data).toEqual('listen');
       });
   });
+
+  test('resolves http errors', () => {
+    const app = express();
+
+    return axiosTest(app)
+      .get('/nope')
+      .then(res => {
+        expect(res.status).toEqual(404);
+      });
+  });
 });

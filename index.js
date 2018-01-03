@@ -13,7 +13,13 @@ module.exports = function axiosTest(app) {
 
   function handleError(error) {
     server.close();
-    return Promise.reject(error);
+
+    // istanbul ignore else
+    if (error.response) {
+      return Promise.resolve(error.response);
+    } else {
+      return Promise.reject(error);
+    }
   }
 
   const instance = axios.create();
