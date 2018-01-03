@@ -1,7 +1,7 @@
 {
   "name": "axios-test",
-  "version": "0.1.0",
-  "description": "Like super-test but with axios and no assertions",
+  "version": "0.2.0",
+  "description": "Kinda like super-test but with axios and no assertions",
   "main": "index.js",
   "scripts": {
     "test": "jest --env node --coverage"
