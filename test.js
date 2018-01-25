@@ -3,15 +3,14 @@ const axiosTest = require('./');
 const { expectStatus, expectData } = require('./expect');
 
 describe('axiosTest', () => {
-  test('takes a function', () => {
-    return axiosTest(function(req, res) {
+  test('takes a function', () =>
+    axiosTest((req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
       res.end('hello world');
     })
       .get('/')
       .then(expectStatus(200))
-      .then(expectData('hello world'));
-  });
+      .then(expectData('hello world')));
 
   test('takes an app', () => {
     const app = express();
@@ -44,22 +43,18 @@ describe('axiosTest', () => {
 
 describe('assertion helpers', () => {
   describe('expectstatus', () => {
-    test('assertion passes and returns response', () => {
-      return expect(Promise.resolve({ status: 200 }).then(expectStatus(200))).resolves.toEqual({ status: 200 });
-    });
-    test('assertion fails and throws error', () => {
-      return expect(Promise.resolve({ status: 200 }).then(expectStatus(404))).rejects.toThrow();
-    });
+    test('assertion passes and returns response', () =>
+      expect(Promise.resolve({ status: 200 }).then(expectStatus(200))).resolves.toEqual({ status: 200 }));
+    test('assertion fails and throws error', () =>
+      expect(Promise.resolve({ status: 200 }).then(expectStatus(404))).rejects.toThrow());
   });
 
   describe('expectData', () => {
-    test('assertion passes and returns response', () => {
-      return expect(Promise.resolve({ data: { foo: 'bar' } }).then(expectData({ foo: 'bar' }))).resolves.toEqual({
+    test('assertion passes and returns response', () =>
+      expect(Promise.resolve({ data: { foo: 'bar' } }).then(expectData({ foo: 'bar' }))).resolves.toEqual({
         data: { foo: 'bar' },
-      });
-    });
-    test('assertion fails and throws error', () => {
-      return expect(Promise.resolve({ data: { foo: 'bar' } }).then(expectData({ foo: 'wrong' }))).rejects.toThrow();
-    });
+      }));
+    test('assertion fails and throws error', () =>
+      expect(Promise.resolve({ data: { foo: 'bar' } }).then(expectData({ foo: 'wrong' }))).rejects.toThrow());
   });
 });

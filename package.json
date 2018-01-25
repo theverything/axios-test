@@ -4,16 +4,24 @@
   "description": "Kinda like super-test but with axios",
   "main": "index.js",
   "scripts": {
-    "test": "jest --env node --coverage",
-    "test:dev": "jest --env node --watch"
+    "test": "yarn lint && jest --env node --coverage",
+    "test:dev": "jest --env node --watch",
+    "lint": "eslint ./*.js"
   },
   "keywords": ["axios", "testing", "http"],
   "author": "theverything",
   "license": "MIT",
   "devDependencies": {
+    "babel-eslint": "^8.2.1",
     "coveralls": "^3.0.0",
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-prettier": "^2.5.0",
     "express": "^4.16.2",
-    "jest": "^22.0.4"
+    "jest": "^22.0.4",
+    "prettier": "^1.10.2"
   },
   "dependencies": {
     "axios": "^0.17.1"

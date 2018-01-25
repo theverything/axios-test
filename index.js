@@ -4,11 +4,12 @@ const { resolve } = require('url');
 
 module.exports = function axiosTest(app) {
   if (typeof app === 'function') {
+    // eslint-disable-next-line no-param-reassign
     app = http.createServer(app);
   }
 
   const server = app.address && app.address() ? app : app.listen(0);
-  const port = server.address().port;
+  const { port } = server.address();
   const host = `http://127.0.0.1:${port}/`;
 
   function handleError(error) {
@@ -17,9 +18,10 @@ module.exports = function axiosTest(app) {
     // istanbul ignore else
     if (error.response) {
       return Promise.resolve(error.response);
-    } else {
-      return Promise.reject(error);
     }
+
+    // istanbul ignore next
+    return Promise.reject(error);
   }
 
   const instance = axios.create();
