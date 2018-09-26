@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`axiosTest expectData throws if expectations fail 1`] = `"'foo' deepStrictEqual 'bar'"`;
-
-exports[`axiosTest expectStatus throws if expectations fail 1`] = `"404 === 200"`;

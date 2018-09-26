@@ -104,7 +104,7 @@ describe('axiosTest', () => {
       axiosTest(app)
         .get('/foo')
         .expectStatus(200),
-    ).rejects.toThrowErrorMatchingSnapshot();
+    ).rejects.toThrow();
   });
 
   test(`expectData throws if expectations fail`, () => {
@@ -115,6 +115,6 @@ describe('axiosTest', () => {
       axiosTest(app)
         .get('/foo')
         .expectData('bar'),
-    ).rejects.toThrowErrorMatchingSnapshot();
+    ).rejects.toThrow();
   });
 });
