@@ -1,6 +1,5 @@
 const express = require('express');
 const axiosTest = require('./');
-const { expectStatus, expectData } = require('./expect');
 
 describe('axiosTest', () => {
   test('takes a function', () =>
@@ -9,17 +8,19 @@ describe('axiosTest', () => {
       res.end('hello world');
     })
       .get('/')
-      .then(expectStatus(200))
-      .then(expectData('hello world')));
+      .expectStatus(200)
+      .expectData('hello world')
+      .then());
 
   test('takes an app', () => {
     const app = express();
-    app.get('/hello', (req, res) => res.send('Hello World!'));
+    app.get('/hello', (req, res) => res.send('hello world'));
 
     return axiosTest(app.listen())
       .get('/hello')
-      .then(expectStatus(200))
-      .then(expectData('Hello World!'));
+      .expectStatus(200)
+      .expectData('hello world')
+      .then();
   });
 
   test('takes an app starts calls `listen` if not already listening', () => {
@@ -28,8 +29,8 @@ describe('axiosTest', () => {
 
     return axiosTest(app)
       .get('/listen')
-      .then(expectStatus(200))
-      .then(expectData('listen'));
+      .expectStatus(200)
+      .expectData('listen');
   });
 
   test('resolves http errors', () => {
@@ -37,24 +38,83 @@ describe('axiosTest', () => {
 
     return axiosTest(app)
       .get('/nope')
-      .then(expectStatus(404));
-  });
-});
-
-describe('assertion helpers', () => {
-  describe('expectstatus', () => {
-    test('assertion passes and returns response', () =>
-      expect(Promise.resolve({ status: 200 }).then(expectStatus(200))).resolves.toEqual({ status: 200 }));
-    test('assertion fails and throws error', () =>
-      expect(Promise.resolve({ status: 200 }).then(expectStatus(404))).rejects.toThrow());
+      .expectStatus(404)
+      .then();
   });
 
-  describe('expectData', () => {
-    test('assertion passes and returns response', () =>
-      expect(Promise.resolve({ data: { foo: 'bar' } }).then(expectData({ foo: 'bar' }))).resolves.toEqual({
-        data: { foo: 'bar' },
-      }));
-    test('assertion fails and throws error', () =>
-      expect(Promise.resolve({ data: { foo: 'bar' } }).then(expectData({ foo: 'wrong' }))).rejects.toThrow());
+  ['get', 'delete', 'options', 'post', 'put', 'patch'].forEach(method => {
+    test(`calls axios method ${method}`, () => {
+      const app = express();
+      app[method]('/foo', (req, res) => res.send('foo'));
+
+      return axiosTest(app)
+        [method]('/foo')
+        .expectStatus(200)
+        .expectData('foo')
+        .then();
+    });
+  });
+
+  test(`calls axios method request`, () => {
+    const app = express();
+    app.get('/foo', (req, res) => res.send('foo'));
+
+    return axiosTest(app)
+      .request({ method: 'get', url: '/foo' })
+      .expectStatus(200)
+      .expectData('foo')
+      .then();
+  });
+
+  test(`calls axios method head`, () => {
+    const app = express();
+    app.head('/foo', (req, res) => res.send('foo'));
+
+    return axiosTest(app)
+      .head('/foo')
+      .expectStatus(200)
+      .expectData('')
+      .then();
+  });
+
+  test(`returns the response if expectations succeed`, () => {
+    const app = express();
+    app.get('/foo', (req, res) => res.send('foo'));
+
+    return expect(
+      axiosTest(app)
+        .get('/foo')
+        .expectStatus(200)
+        .expectData('foo'),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        config: expect.any(Object),
+        data: expect.anything(),
+        headers: expect.any(Object),
+        request: expect.any(Object),
+      }),
+    );
+  });
+
+  test(`expectStatus throws if expectations fail`, () => {
+    const app = express();
+    app.get('/bar', (req, res) => res.send('foo'));
+
+    return expect(
+      axiosTest(app)
+        .get('/foo')
+        .expectStatus(200),
+    ).rejects.toThrowErrorMatchingSnapshot();
+  });
+
+  test(`expectData throws if expectations fail`, () => {
+    const app = express();
+    app.get('/foo', (req, res) => res.send('foo'));
+
+    return expect(
+      axiosTest(app)
+        .get('/foo')
+        .expectData('bar'),
+    ).rejects.toThrowErrorMatchingSnapshot();
   });
 });

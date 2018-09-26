@@ -23,8 +23,11 @@ const app = require('./app');
 
 return axiosTest(app.listen())
   .get('/hello')
-  .then(expectStatus(200))
-  .then(expectData('Hello World!'));
+  .expectStatus(200)
+  .expectData('Hello World!')
+  .then(resp => {
+    // do what you want with the response
+  });
 ```
 
 All response errors are resolved rather than rejected.
@@ -45,14 +48,9 @@ const app = require('./app');
 
 return axiosTest(app.listen())
   .get('/nope')
-  .then(expectStatus(404));
+  .expectStatus(404)
+  .then();
 ```
-
-A couple expectation helpers are included.
-
-`expectStatus` takes a `Number` and checks `response.status` with `===` using `assert.strictEqual`.
-
-`expectData` takes just about anything and checks `response.data` with `assert.strictDeepEqual`.
 
 ## License
 
