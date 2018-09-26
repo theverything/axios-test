@@ -42,9 +42,10 @@ function expect(response, ctx) {
 class AxiosTest {
   constructor(instance) {
     this.instance = instance;
-    this.req = null;
     this.expectedStatus = null;
     this.expectedData = null;
+    this.method = null;
+    this.args = null;
   }
 
   expectStatus(status) {
@@ -57,54 +58,15 @@ class AxiosTest {
     return this;
   }
 
-  request(...args) {
-    this.req = this.instance.request(...args);
-    return this;
-  }
-
-  get(...args) {
-    this.req = this.instance.get(...args);
-    return this;
-  }
-
-  delete(...args) {
-    this.req = this.instance.delete(...args);
-    return this;
-  }
-
-  head(...args) {
-    this.req = this.instance.head(...args);
-    return this;
-  }
-
-  options(...args) {
-    this.req = this.instance.options(...args);
-    return this;
-  }
-
-  post(...args) {
-    this.req = this.instance.post(...args);
-    return this;
-  }
-
-  put(...args) {
-    this.req = this.instance.put(...args);
-    return this;
-  }
-
-  patch(...args) {
-    this.req = this.instance.patch(...args);
-    return this;
-  }
-
   then(res, rej) {
-    return this.req.then(resp => expect(resp, this)).then(res, rej);
+    return this.instance[this.method](...this.args)
+      .then(resp => expect(resp, this))
+      .then(res, rej);
   }
 }
 
 module.exports = function axiosTest(app) {
   if (typeof app === 'function') {
-    // eslint-disable-next-line no-param-reassign
     app = http.createServer(app);
   }
 
@@ -137,5 +99,15 @@ module.exports = function axiosTest(app) {
     return Promise.resolve(response);
   }, handleError);
 
-  return new AxiosTest(instance);
+  return new Proxy(new AxiosTest(instance), {
+    get(target, name, receiver) {
+      return name in target
+        ? target[name]
+        : function proxyFunc(...args) {
+            target.method = name;
+            target.args = args;
+            return receiver;
+          };
+    },
+  });
 };
